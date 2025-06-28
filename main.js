@@ -147,26 +147,23 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
        // ✅ .autoreact command handler
 if (userMessage.startsWith('.autoreact') || userMessage.startsWith('.areact')) {
-    const chatId = message.key.remoteJid; // ✅ Move this OUTSIDE try block
     try {
-        const senderId = message.key.participant || message.key.remoteJid;
         const isOwner = (global.owner || []).includes(senderId.split('@')[0]);
-
-        const { handleCommand } = require('./lib/reactions');
         await handleCommand(sock, chatId, message, isOwner);
+        return; // stop here after processing command
     } catch (err) {
         console.error('❌ Error in .autoreact command handler:', err.message);
         await sock.sendMessage(chatId, {
             text: `❌ Failed to process .autoreact command!\n${err.message}`,
             quoted: message
         });
+        return;
     }
 }
 
-// ✅ Auto-reaction using config in autoreact.json
-const { addReaction } = require('./lib/reactions');
+// ✅ Auto-reaction (only if config allows)
 if (!message.key.fromMe) {
-    await addReaction(sock, message);
+    await addReaction(sock, message); // this will check autoreact.json internally
 }
         // ... rest of your code
         // Check if user is banned (skip ban check for unban command)
