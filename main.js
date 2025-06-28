@@ -145,10 +145,10 @@ async function handleMessages(sock, messageUpdate, printLog) {
             console.log(`📝 Command used in ${isGroup ? 'group' : 'private'}: ${userMessage}`);
         }
 
-        // ✅ .autoreact command handler
+       // ✅ .autoreact command handler
 if (userMessage.startsWith('.autoreact') || userMessage.startsWith('.areact')) {
+    const chatId = message.key.remoteJid; // ✅ Move this OUTSIDE try block
     try {
-        const chatId = message.key.remoteJid;
         const senderId = message.key.participant || message.key.remoteJid;
         const isOwner = (global.owner || []).includes(senderId.split('@')[0]);
 
