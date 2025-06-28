@@ -10,17 +10,19 @@ const PhoneNumber = require('awesome-phonenumber');
 const { handleMessages, handleGroupParticipantUpdate, handleStatus } = require('./main');
 const { smsg } = require('./lib/myfunc');
 
-// ✅ Global Config
+// Ultra Pro Max Configurations
 const phoneNumber = "923237045919";
-global.owner = []; // Will be auto-filled after connection
 
+// Place-holder owner, will be updated after connection
+global.owner = [];
 global.botname = "Arslan-MD";
 global.themeemoji = "✨";
-global.reactEmoji = "❤️";
-global.autoReactEnabled = false;
+global.reactEmoji = "❤️"; // Single reaction emoji
+global.autoReactEnabled = false; // Default: Auto-reaction OFF
 global.premiumFeatures = true;
 global.autoReadMessages = true;
 
+// Enhanced Settings
 const settings = require('./settings');
 const pairingCode = !!phoneNumber || process.argv.includes("--pairing-code");
 const useMobile = process.argv.includes("--mobile");
@@ -48,7 +50,7 @@ async function startBot() {
         msgRetryCounterCache
     });
 
-    // 🔄 Handle incoming messages
+    // Ultra Pro Max Message Handler
     sock.ev.on('messages.upsert', async chatUpdate => {
         const mek = chatUpdate.messages[0];
         if (!mek.message) return;
@@ -57,6 +59,7 @@ async function startBot() {
         if (!sock.public && !mek.key.fromMe && chatUpdate.type === 'notify') return;
 
         try {
+            // Single Reaction Feature
             if (!mek.key.fromMe && global.reactEmoji) {
                 await sock.sendMessage(mek.key.remoteJid, {
                     react: {
@@ -72,7 +75,7 @@ async function startBot() {
         }
     });
 
-    // 🔌 Connection update
+    // Enhanced Connection Handler
     sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
         console.log(chalk.blue('Connection update:', connection));
@@ -82,20 +85,20 @@ async function startBot() {
         }
 
         if (connection === 'open') {
-            const jid = sock.user.id.split(":")[0];
-            global.owner = [jid]; // ✅ OWNER SET
-            console.log(chalk.green(`🤖 ${global.botname} Connected as ${sock.user.id}`));
-            console.log(chalk.green("✅ OWNER SET TO:", global.owner));
+            // ✅ Automatically set owner from connected number
+            global.owner = [sock.user.id.split(':')[0]];
+            console.log(chalk.green(`🤖 ${global.botname} Connected Successfully as ${sock.user.id}`));
 
+            // Premium Startup Message
             setTimeout(async () => {
                 try {
                     await sock.sendMessage(sock.user.id, {
                         text: `🌟 *${global.botname} Activated!*\n\n` +
                               `🕒 Time: ${new Date().toLocaleString()}\n` +
-                              `📢 Channel: https://whatsapp.com/channel/0029VarfjW04tRrmwfb8x306\n` +
+                              `📢 Official Channel: https://whatsapp.com/channel/0029VarfjW04tRrmwfb8x306\n` +
                               `💎 Version: ULTRA PRO MAX`
                     });
-                    console.log(chalk.cyan("✅ Startup message sent."));
+                    console.log(chalk.cyan("✅ Premium startup message sent successfully."));
                 } catch (error) {
                     console.log(chalk.red("❌ Socket not ready. Skipping startup message."));
                 }
@@ -112,15 +115,18 @@ async function startBot() {
         }
     });
 
-    // 🔧 Misc events
+    // Other Event Handlers
     sock.ev.on('creds.update', saveCreds);
+
     sock.ev.on('group-participants.update', async update => {
         await handleGroupParticipantUpdate(sock, update);
     });
+
     sock.ev.on('status.update', async (status) => {
         await handleStatus(sock, status);
     });
 
+    // Premium Features
     sock.public = true;
     sock.serializeM = (m) => smsg(sock, m);
 
@@ -134,20 +140,28 @@ async function startBot() {
 
     sock.getName = (jid, withoutContact = false) => {
         jid = sock.decodeJid(jid);
-        let v = jid === '0@s.whatsapp.net' ? { id: jid, name: 'WhatsApp' } :
-                (jid === sock.decodeJid(sock.user.id) ? sock.user : {});
+        let v = jid === '0@s.whatsapp.net' ? {
+            id: jid,
+            name: 'WhatsApp'
+        } : (jid === sock.decodeJid(sock.user.id) ? sock.user : {});
         return (withoutContact ? '' : v.name) || PhoneNumber('+' + jid.replace('@s.whatsapp.net', '')).getNumber('international');
     };
 
-    // 🔁 Reconnect every 5 min
+    // Ultra Pro Max Auto-Reconnect
     setInterval(() => {
         if (!sock.user) {
             console.log(chalk.yellow("🔄 Attempting auto-reconnect..."));
             startBot().catch(err => console.error(chalk.red("❌ Reconnect failed:", err)));
         }
-    }, 300000);
+    }, 300000); // 5 minutes
 }
 
-startBot().catch(err => console.error(chalk.red("❌ Fatal Error:", err)));
+// Start the Ultra Pro Max Bot
+startBot().catch(err => {
+    console.error(chalk.red("❌ Fatal Error:", err));
+});
+
+// Error Handling
 process.on('uncaughtException', err => console.error(chalk.red('❗ Uncaught Exception:', err)));
 process.on('unhandledRejection', err => console.error(chalk.red('❗ Unhandled Rejection:', err)));
+                       
